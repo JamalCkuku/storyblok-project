@@ -1,44 +1,41 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App";
+// pages/[slug].js
 
-import { storyblokInit, apiPlugin } from "@storyblok/react";
-
-import BlogPost from "./components/BlogPost";
-import Feature from "./components/Feature";
-import FeaturedPosts from "./components/FeaturedPosts";
-import Grid from "./components/Grid";
-import PostsList from "./components/PostsList";
+import { useStoryblokState, getStoryblokApi } from "@storyblok/react";
 import Page from "./components/Page";
-import Teaser from "./components/Teaser";
-import Text from "./components/Text";
 
-const components = {
-  feature: Feature,
-  "featured-posts": FeaturedPosts,
-  grid: Grid,
-  page: Page,
-  post: BlogPost,
-  "selected-posts": PostsList,
-  teaser: Teaser,
-  text: Text,
-};
+export default function DynamicPage({ story }) {
+  story = useStoryblokState(story); // enables live preview
+  return <Page blok={story.content} />;
+}
 
-storyblokInit({
-  accessToken: "AAmqfGqVkzqqQsa4ZGwNAAtt",
-  use: [apiPlugin],
-  // for spaces located in the US or China:
-  // apiOptions: {
-  //   region: "us" or "cn", // you need to specify the region
-  // },
-  components,
-});
+export async function getStaticProps({ params }) {
+  const slug = params.slug ? params.slug : "home";
+  const sbParams = {
+    version: "draft", // gets draft version
+  };
 
-const container = document.getElementById("root");
-const root = createRoot(container);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+  const storyblokApi = getStoryblokApi();
+  const { data } = await storyblokApi.get(`cdn/stories/${slug}`, sbParams);
+
+  return {
+    props: {
+      story: data.story,
+    },
+    revalidate: 3600,
+  };
+}
+
+export async function getStaticPaths() {
+  const storyblokApi = getStoryblokApi();
+  const { data } = await storyblokApi.get("cdn/links/");
+
+  const paths = Object.keys(data.links).map((linkKey) => {
+    const slug = data.links[linkKey].slug;
+    return { params: { slug } };
+  });
+
+  return {
+    paths,
+    fallback: false,
+  };
+}

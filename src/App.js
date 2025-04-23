@@ -1,32 +1,10 @@
-import "./index.css";
-import Layout from "./components/Layout";
-import { useStoryblok, StoryblokComponent } from "@storyblok/react";
+// pages/_app.js
 
-function App() {
-  const slug =
-    window.location.pathname === "/"
-      ? "home"
-      : window.location.pathname.replace("/", "");
+import '../styles/globals.css';
+import '../lib/storyblok'; // this runs storyblokInit()
 
-  const story = useStoryblok(
-    slug,
-    {
-      resolve_relations: ["featured-posts.posts", "selected-posts.posts"],
-    },
-    {
-      resolveRelations: ["featured-posts.posts", "selected-posts.posts"],
-    }
-  );
-
-  if (!story?.content) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <Layout>
-      <StoryblokComponent blok={story.content} />
-    </Layout>
-  );
+function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
 }
 
-export default App;
+export default MyApp;

@@ -1,13 +1,15 @@
-import { storyblokEditable, StoryblokComponent } from "@storyblok/react";
+// components/Page.js
 
-const Page = ({ blok }) => (
-  <main {...storyblokEditable(blok)} key={blok._uid}>
-    {blok.body
-      ? blok.body.map((blok) => (
-          <StoryblokComponent blok={blok} key={blok._uid} />
-        ))
-      : null}
-  </main>
-);
+import { storyblokEditable } from "@storyblok/react";
+
+const Page = ({ blok }) => {
+  return (
+    <main {...storyblokEditable(blok)}>
+      <h1>{blok.title}</h1>
+      <p>{blok.content}</p>
+    </main>
+  );
+};
 
 export default Page;
+
